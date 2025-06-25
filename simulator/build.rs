@@ -41,4 +41,8 @@ fn main() {
 
     println!("cargo::rustc-link-search={libgnat_dir}");
     println!("cargo::rustc-link-lib=static=gnat");
+
+    if cfg!(target_os = "macos") {
+        println!("cargo:rustc-env=DYLD_FALLBACK_LIBRARY_PATH={libgnat_dir}");
+    }
 }
