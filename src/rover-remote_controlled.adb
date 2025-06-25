@@ -1,6 +1,4 @@
-with Interfaces; use Interfaces;
 with Rover_HAL; use Rover_HAL;
-
 with Rover.Mast_Control;
 
 package body Rover.Remote_Controlled
