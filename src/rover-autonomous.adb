@@ -9,7 +9,7 @@ is
    type Auto_State is record
       User_Exit : Boolean := False;
 
-      Mast : Rover.Mast_Control.Mast_State;
+      Mast : Rover.Mast_Control.Instance;
    end record;
 
    ----------------------
@@ -56,11 +56,15 @@ is
       Set_Power (Right, 100);
 
       --  Rotate the mast and check for obstacle
+
+      This.Mast.Set_Speed (200);
+      This.Mast.Scan (-60, 60);
+
       loop
          Check_User_Input (This);
          exit when This.User_Exit;
 
-         Mast_Control.Next_Mast_Angle (This.Mast, -60, 70, 16);
+         This.Mast.Update;
 
          Last_Distance := Distance;
          Distance := Sonar_Distance;
@@ -151,6 +155,9 @@ is
       --  Measure the distance straight ahead
       Distance := Distance_Straight_Ahead;
 
+      This.Mast.Set_Speed (50);
+      This.Mast.Scan (-60, 60);
+
       while Distance < Distance_Threshold and then not This.User_Exit loop
          --  Turn the mast back and forth and log the dected distance for the
          --  left and right side.
@@ -160,12 +167,12 @@ is
 
             exit when This.User_Exit or else Now > Timeout;
 
-            Mast_Control.Next_Mast_Angle (This.Mast, -60, 70, 4);
+            This.Mast.Update;
 
-            if Mast_Control.Last_Angle (This.Mast) <= -40 then
+            if This.Mast.Current_Angle <= -40 then
                Left_Dist := Sonar_Distance;
             end if;
-            if Mast_Control.Last_Angle (This.Mast) >= 40 then
+            if This.Mast.Current_Angle >= 40 then
                Right_Dist := Sonar_Distance;
             end if;
 
