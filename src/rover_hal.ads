@@ -75,13 +75,14 @@ is
    -- Mast --
    ----------
 
-   type Mast_Angle is new  Interfaces.Integer_8 range -70 .. 70;
+   type Mast_Angle is new  Interfaces.Integer_8 range -70 .. 100;
 
    procedure Set_Mast_Angle (V : Mast_Angle)
      with
        Pre  => Initialized,
        Post => Initialized,
-       Global => (HW_State, HW_Init);
+       Global => (Input  => HW_Init,
+                  Output => HW_State);
 
    ------------
    -- Remote --

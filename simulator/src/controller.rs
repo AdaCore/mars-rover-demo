@@ -136,7 +136,7 @@ fn control(keys: Res<ButtonInput<KeyCode>>, mut robot: ResMut<RobotRes>) {
         Ordering::Relaxed,
     );
 
-    robot.set_distance_sensor_angle(Angle::from_deg(
+    robot.set_distance_sensor_angle(-Angle::from_deg(
         DISTANCE_SENSOR_ANGLE.load(Ordering::Relaxed).into(),
     ));
 

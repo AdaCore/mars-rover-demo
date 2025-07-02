@@ -72,11 +72,11 @@ is
       Last_Interaction_Time : Time;
       Timeout : constant Time := Milliseconds (10_000);
 
-      M_State : Mast_Control.Mast_State;
+      M_State : Mast_Control.Instance;
    begin
 
-      Set_Mast_Angle (0);
-
+      M_State.Set_Speed (250);
+      M_State.Scan (-60, 60);
       Last_Interaction_Time := Clock;
 
       loop
@@ -100,10 +100,8 @@ is
 
             --  Only turn the mast when there is no detected obstacle.
             --  Otherwise, the sensor may look away from the obstacle and
-            --  not detect it anymore.
-            Mast_Control.Next_Mast_Angle (M_State, -55, 55, 16);
-
-            pragma Assert (Mast_Control.Last_Angle (M_State) in -55 .. 55);
+            --  not detect it anymore
+            M_State.Update;
          end if;
 
          Cmd := To_Command (Buttons);
