@@ -6,9 +6,8 @@ is
 
    procedure Demo
      with
-      Pre  => Rover_HAL.Initialized,
-      Post => Rover_HAL.Initialized and then
-              Rover.Cannot_Crash;
+      Pre => Rover_HAL.Initialized,
+      No_Return;
 
    pragma Export (C, Demo, "mars_rover_demo_task");
 
