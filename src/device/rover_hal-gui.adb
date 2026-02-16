@@ -51,22 +51,6 @@ package body Rover_HAL.GUI is
      with Import, Address => RAM_Page'Address,
        Volatile;
 
-   ---------------------
-   -- Load_From_Flash --
-   ---------------------
-
-   procedure Load_From_Flash is
-   begin
-      if In_Flash_Data.Magic = Magic_Keyword then
-         --  We have valid data in flash
-
-         Center (Front, Left) := In_Flash_Data.FL;
-         Center (Front, Right) := In_Flash_Data.FR;
-         Center (Back, Left) := In_Flash_Data.BL;
-         Center (Back, Right) := In_Flash_Data.BR;
-      end if;
-   end Load_From_Flash;
-
    -------------------
    -- Save_To_Flash --
    -------------------
@@ -90,6 +74,26 @@ package body Rover_HAL.GUI is
       Atomic.Critical_Section.Leave (Int_State);
 
    end Save_To_Flash;
+
+   ---------------------
+   -- Load_From_Flash --
+   ---------------------
+
+   procedure Load_From_Flash is
+   begin
+      if In_Flash_Data.Magic = Magic_Keyword then
+         --  We have valid data in flash
+
+         Center (Front, Left) := In_Flash_Data.FL;
+         Center (Front, Right) := In_Flash_Data.FR;
+         Center (Back, Left) := In_Flash_Data.BL;
+         Center (Back, Right) := In_Flash_Data.BR;
+      else
+         --  If we don't have valid data yet, save the current one to provide
+         --  valid initial values.
+         Save_To_Flash;
+      end if;
+   end Load_From_Flash;
 
    ----------------
    -- Initialize --

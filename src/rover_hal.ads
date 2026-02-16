@@ -84,6 +84,28 @@ is
        Global => (Input  => HW_Init,
                   Output => HW_State);
 
+   ---------------
+   -- Drill Arm --
+   ---------------
+
+   type Arm_Angle_A is new  Interfaces.Integer_8 range 0 .. 90;
+
+   procedure Set_Arm_Angle (V : Arm_Angle_A)
+     with
+       Pre  => Initialized,
+       Post => Initialized,
+       Global => (Input  => HW_Init,
+                  Output => HW_State);
+
+   type Arm_Angle_B is new  Interfaces.Integer_8 range -95 .. 100;
+
+   procedure Set_Arm_Angle (V : Arm_Angle_B)
+     with
+       Pre  => Initialized,
+       Post => Initialized,
+       Global => (Input  => HW_Init,
+                  Output => HW_State);
+
    ------------
    -- Remote --
    ------------

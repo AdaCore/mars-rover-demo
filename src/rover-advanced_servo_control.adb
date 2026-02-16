@@ -1,4 +1,6 @@
-package body Rover.Mast_Control with SPARK_Mode is
+with Rover_HAL; use Rover_HAL;
+
+package body Rover.Advanced_Servo_Control with SPARK_Mode is
 
    ---------------
    -- Set_Speed --
@@ -16,7 +18,7 @@ package body Rover.Mast_Control with SPARK_Mode is
    ----------
 
    procedure Scan (This     : in out Instance;
-                   Min, Max :        Mast_Angle)
+                   Min, Max :        Angle_Type)
    is
    begin
       This.Move_To (Min, Wait_For_Completion => True);
@@ -31,7 +33,7 @@ package body Rover.Mast_Control with SPARK_Mode is
    -------------
 
    procedure Move_To (This                : in out Instance;
-                      Angle               :        Mast_Angle;
+                      Angle               :        Angle_Type;
                       Wait_For_Completion :        Boolean := False)
    is
    begin
@@ -65,7 +67,7 @@ package body Rover.Mast_Control with SPARK_Mode is
       subtype S32 is Integer_32;
 
       Diff : S32;
-      New_Angle : Mast_Angle;
+      New_Angle : Angle_Type;
 
    begin
 
@@ -74,11 +76,11 @@ package body Rover.Mast_Control with SPARK_Mode is
             if This.Angle < This.Fixed_Target then
                Diff := S32 (This.Fixed_Target) - S32 (This.Angle);
                Diff := S32'Min (Diff, S32 (Max_Motion));
-               New_Angle := This.Angle + Mast_Angle (Diff);
+               New_Angle := This.Angle + Angle_Type (Diff);
             elsif This.Angle > This.Fixed_Target then
                Diff := S32 (This.Angle) - S32 (This.Fixed_Target);
                Diff := S32'Min (Diff, S32 (Max_Motion));
-               New_Angle := This.Angle - Mast_Angle (Diff);
+               New_Angle := This.Angle - Angle_Type (Diff);
             else
                New_Angle := This.Angle;
             end if;
@@ -88,7 +90,7 @@ package body Rover.Mast_Control with SPARK_Mode is
                when Left =>
                   Diff := S32 (This.Angle) - S32 (This.Scan_Min);
                   Diff := S32'Max (0, S32'Min (Diff, S32 (Max_Motion)));
-                  New_Angle := This.Angle - Mast_Angle (Diff);
+                  New_Angle := This.Angle - Angle_Type (Diff);
 
                   if New_Angle <= This.Scan_Min then
                      This.Direction := Right;
@@ -97,7 +99,7 @@ package body Rover.Mast_Control with SPARK_Mode is
                when Right =>
                   Diff := S32 (This.Scan_Max) - S32 (This.Angle);
                   Diff := S32'Max (0, S32'Min (Diff, S32 (Max_Motion)));
-                  New_Angle := This.Angle + Mast_Angle (Diff);
+                  New_Angle := This.Angle + Angle_Type (Diff);
 
                   if New_Angle >= This.Scan_Max then
                      This.Direction := Left;
@@ -106,7 +108,7 @@ package body Rover.Mast_Control with SPARK_Mode is
       end case;
 
       This.Angle := New_Angle;
-      Set_Mast_Angle (This.Angle);
+      Set_Angle (This.Angle);
       This.Last_Update := Now;
    end Update;
 
@@ -114,7 +116,7 @@ package body Rover.Mast_Control with SPARK_Mode is
    -- Last_Angle --
    ----------------
 
-   function Current_Angle (This : Instance) return Mast_Angle
+   function Current_Angle (This : Instance) return Angle_Type
    is (This.Angle);
 
-end Rover.Mast_Control;
+end Rover.Advanced_Servo_Control;

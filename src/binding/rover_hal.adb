@@ -76,6 +76,28 @@ is
       Set_Mast_Angle_Import (Integer_8 (V));
    end Set_Mast_Angle;
 
+   -------------------
+   -- Set_Arm_Angle --
+   -------------------
+
+   procedure Set_Arm_Angle (V : Arm_Angle_A) is
+      procedure Set_Angle_Import (V : Integer_8);
+      pragma Import (C, Set_Angle_Import, "mars_rover_set_arm_a_angle");
+   begin
+      Set_Angle_Import (Integer_8 (V));
+   end Set_Arm_Angle;
+
+   -------------------
+   -- Set_Arm_Angle --
+   -------------------
+
+   procedure Set_Arm_Angle (V : Arm_Angle_B) is
+      procedure Set_Angle_Import (V : Integer_8);
+      pragma Import (C, Set_Angle_Import, "mars_rover_set_arm_b_angle");
+   begin
+      Set_Angle_Import (Integer_8 (V));
+   end Set_Arm_Angle;
+
    ------------
    -- Remote --
    ------------

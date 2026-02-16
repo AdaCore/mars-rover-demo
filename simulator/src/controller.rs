@@ -66,6 +66,14 @@ pub extern "C" fn mars_rover_set_mast_angle(a: i8) {
 }
 
 #[no_mangle]
+pub extern "C" fn mars_rover_set_arm_a_angle(_a: i8) {
+}
+
+#[no_mangle]
+pub extern "C" fn mars_rover_set_arm_b_angle(_a: i8) {
+}
+
+#[no_mangle]
 pub extern "C" fn mars_rover_set_wheel_angle(wheel: u8, side: u8, a: i8) {
     let idx = match (wheel, side) {
         (0, 0) => WheelID::FrontLeft as usize,
