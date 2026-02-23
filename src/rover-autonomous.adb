@@ -136,91 +136,65 @@ is
               (This.User_Exit or else
                Rover_HAL.Get_Sonar_Distance >= Distance_Threshold)
    is
-      Left_Dist : Unsigned_32 := 0;
-      Right_Dist : Unsigned_32 := 0;
+      Left_Mast_Angle : constant := -60;
+      Right_Mast_Angle : constant := 60;
 
-      Timeout, Now : Time;
-
-      function Distance_Straight_Ahead return Unsigned_32 with
-         Side_Effects,
-         Pre  => Initialized,
-         Post => Initialized and then
-                 --  We have to make this promise because otherwise SPARK
-                 --  cannot know that the result actually came from the
-                 --  sonar.
-                 Rover_HAL.Get_Sonar_Distance = Distance_Straight_Ahead'Result
-
-      is
-      begin
-         Rover_HAL.Set_Mast_Angle (0);
-         --  Set the mast to the straight position - this can take a bit of
-         --  time, so:
-         Delay_Milliseconds (50);
-
-         return Distance : Unsigned_32 do
-            Distance := Sonar_Distance;
-         end return;
-         --  Extended return used because SPARK won't allow a simple return
-         --  statement here, because the function has side effects.
-      end Distance_Straight_Ahead;
-
+      Left_Dist : Unsigned_32;
+      Right_Dist : Unsigned_32;
       Distance : Unsigned_32;
    begin
-      Now := Clock;
-      Timeout := Now + Milliseconds (10000);
 
-      Set_Turn (Straight);
       Set_Power (Left, 0);
       Set_Power (Right, 0);
 
-      --  Measure the distance straight ahead
-      Distance := Distance_Straight_Ahead;
+      loop
+         --  Start with the mast straight ahead
+         This.Mast.Set_Speed (40);
+         This.Mast.Move_To (0, Wait_For_Completion => True);
+         Delay_Milliseconds (500);
 
-      This.Mast.Set_Speed (50);
-      This.Mast.Scan (-60, 60);
+         This.Mast.Move_To (Left_Mast_Angle, Wait_For_Completion => True);
+         Delay_Milliseconds (500);
+         Left_Dist := Sonar_Distance;
 
-      while Distance < Distance_Threshold and then not This.User_Exit loop
-         --  Turn the mast back and forth and log the dected distance for the
-         --  left and right side.
-         loop
-            Check_User_Input (This);
-            Now := Clock;
+         This.Mast.Move_To (Right_Mast_Angle, Wait_For_Completion => True);
+         Delay_Milliseconds (500);
+         Right_Dist := Sonar_Distance;
 
-            exit when This.User_Exit or else Now > Timeout;
-
-            Servo_Update (This);
-
-            if This.Mast.Current_Angle <= -40 then
-               Left_Dist := Sonar_Distance;
-            end if;
-            if This.Mast.Current_Angle >= 40 then
-               Right_Dist := Sonar_Distance;
-            end if;
-
-            Delay_Milliseconds (30);
-         end loop;
-
-         if Now > Timeout then
-            if Left_Dist < 50 and then Right_Dist < 50 then
-               --  Obstacles left and right, turn around to find a new
-               --  direction
-               Turn_Around;
-            elsif Left_Dist > Right_Dist then
-               --  Turn left a little
-               Set_Turn (Around);
-               Set_Power (Left, -100);
-               Set_Power (Right, 100);
-               Delay_Milliseconds (800);
-            else
-               --  Turn right a little
-               Set_Turn (Around);
-               Set_Power (Left, 100);
-               Set_Power (Right, -100);
-               Delay_Milliseconds (800);
-            end if;
-
-            Distance := Distance_Straight_Ahead;
+         --  Choose the next direction:
+         if Left_Dist < 50 and then Right_Dist < 50 then
+            --  Obstacles left and right, turn around to find a new
+            --  direction
+            Turn_Around;
+         elsif Left_Dist > Right_Dist then
+            --  Look left
+            This.Mast.Move_To (Left_Mast_Angle, Wait_For_Completion => True);
+            --  Turn left a little
+            Set_Turn (Around);
+            Set_Power (Left, -100);
+            Set_Power (Right, 100);
+            Delay_Milliseconds (800);
+         else
+            --  Look right
+            This.Mast.Move_To (Right_Mast_Angle, Wait_For_Completion => True);
+            --  Turn right a little
+            Set_Turn (Around);
+            Set_Power (Left, 100);
+            Set_Power (Right, -100);
+            Delay_Milliseconds (800);
          end if;
+
+         --  Stop the rotation
+         Set_Power (Left, 0);
+         Set_Power (Right, 0);
+
+         --  Measure the distance straight ahead
+         This.Mast.Move_To (0, Wait_For_Completion => True);
+         Delay_Milliseconds (500);
+         Distance := Sonar_Distance;
+
+         Check_User_Input (This);
+         exit when This.User_Exit or else Distance >= Distance_Threshold;
       end loop;
    end Find_New_Direction;
 
@@ -326,8 +300,8 @@ is
       Set_Power (Left, 0);
       Set_Power (Right, 0);
 
-      State.Arm_A.Move_To (A_In_Angle, Wait_For_Completion => True);
       State.Arm_B.Move_To (B_In_Angle, Wait_For_Completion => True);
+      State.Arm_A.Move_To (A_In_Angle, Wait_For_Completion => True);
 
       while not State.User_Exit loop
          if Drilling_Timer = 0 then
