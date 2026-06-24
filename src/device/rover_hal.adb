@@ -124,6 +124,38 @@ is
       Set_PWM (0, Pos);
    end Set_Mast_Angle;
 
+   -------------------
+   -- Set_Arm_Angle --
+   -------------------
+
+   procedure Set_Arm_Angle (V : Arm_Angle_A) is
+      use PCA9685;
+
+      Center     : constant := 327.0;
+      Move_Step  : constant := 200.0 / 90.0;
+
+      Offset : constant Integer := Integer (-Float (V) * Move_Step);
+      Pos : constant PWM_Range := PWM_Range (Integer (Center) + Offset);
+   begin
+      Set_PWM (7, Pos);
+   end Set_Arm_Angle;
+
+   -------------------
+   -- Set_Arm_Angle --
+   -------------------
+
+   procedure Set_Arm_Angle (V : Arm_Angle_B) is
+      use PCA9685;
+
+      Center     : constant := 327.0;
+      Move_Step  : constant := 200.0 / 90.0;
+
+      Offset : constant Integer := Integer (-Float (V) * Move_Step);
+      Pos : constant PWM_Range := PWM_Range (Integer (Center) + Offset);
+   begin
+      Set_PWM (6, Pos);
+   end Set_Arm_Angle;
+
    ------------
    -- Update --
    ------------
