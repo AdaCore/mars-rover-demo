@@ -30,7 +30,7 @@ project Mars_Rover is
    end Install;
 
    package Prove is
-      for Proof_Switches ("Ada") use ("--no-subprojects", "--level=1");
+      for Proof_Switches ("Ada") use ("--no-subprojects");
    end Prove;
 
 end Mars_Rover;

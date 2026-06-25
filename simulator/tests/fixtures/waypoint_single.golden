@@ -1,0 +1,17 @@
+Loaded 12 rows from tests/fixtures/waypoint_single.csv  (tolerance ±5)
+Loaded 1 waypoints from tests/fixtures/waypoint_single.csv.wpts
+Exact-DT replay: using logged ada_step_us timestamps.
+FAIL step    1  row    1  t=    40ms :  power_left=60 exp=0 (Δ=60.0>tol=5)  power_right=60 exp=0 (Δ=60.0>tol=5)  ekf ada—  log—  wp→WP0
+FAIL step    2  row    2  t=    80ms :  power_left=60 exp=0 (Δ=60.0>tol=5)  power_right=60 exp=0 (Δ=60.0>tol=5)  ekf ada(0.029,0.000,0.0°)  log—  wp→WP0
+FAIL step    3  row    3  t=   120ms :  power_left=60 exp=0 (Δ=60.0>tol=5)  power_right=60 exp=0 (Δ=60.0>tol=5)  ekf ada(0.059,0.000,0.0°)  log—  wp→WP0
+FAIL step    4  row    4  t=   160ms :  power_left=60 exp=0 (Δ=60.0>tol=5)  power_right=60 exp=0 (Δ=60.0>tol=5)  ekf ada(0.088,0.000,0.0°)  log—  wp→WP0
+FAIL step    5  row    5  t=   200ms :  power_left=60 exp=0 (Δ=60.0>tol=5)  power_right=60 exp=0 (Δ=60.0>tol=5)  ekf ada(0.118,0.000,0.0°)  log—  wp→WP0
+FAIL step    6  row    6  t=   240ms :  power_left=60 exp=0 (Δ=60.0>tol=5)  power_right=60 exp=0 (Δ=60.0>tol=5)  ekf ada(0.147,0.000,0.0°)  log—  wp→WP0
+FAIL step    7  row    7  t=   280ms :  power_left=60 exp=0 (Δ=60.0>tol=5)  power_right=60 exp=0 (Δ=60.0>tol=5)  ekf ada(0.177,0.000,0.0°)  log—  wp→WP0
+FAIL step    8  row    8  t=   320ms :  power_left=60 exp=0 (Δ=60.0>tol=5)  power_right=60 exp=0 (Δ=60.0>tol=5)  ekf ada(0.206,0.000,0.0°)  log—  wp→WP0
+FAIL step    9  row    9  t=   360ms :  power_left=60 exp=0 (Δ=60.0>tol=5)  power_right=60 exp=0 (Δ=60.0>tol=5)  ekf ada(0.236,0.000,0.0°)  log—  wp→WP0
+FAIL step   10  row   10  t=   400ms :  power_left=60 exp=0 (Δ=60.0>tol=5)  power_right=60 exp=0 (Δ=60.0>tol=5)  ekf ada(0.265,0.000,0.0°)  log—  wp→WP0
+FAIL step   11  row   11  t=   440ms :  power_left=60 exp=0 (Δ=60.0>tol=5)  power_right=60 exp=0 (Δ=60.0>tol=5)  ekf ada(0.295,0.000,0.0°)  log—  wp→WP0
+FAIL step   12  row   11  t=   440ms :  power_left=60 exp=0 (Δ=60.0>tol=5)  power_right=60 exp=0 (Δ=60.0>tol=5)  ekf ada(0.324,0.000,0.0°)  log—  wp→WP0
+
+Replay complete: 0 PASS  12 FAIL  (12 Ada steps, 12 CSV rows)

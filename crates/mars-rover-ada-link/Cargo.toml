@@ -1,0 +1,29 @@
+[package]
+name = "mars-rover-ada-link"
+version = "0.0.0"
+edition = "2021"
+links = "Mars_Rover"
+
+# This crate owns both (a) the static-library linkage for the Ada
+# control-software library (libMars_Rover.a) and its libgnat runtime, and
+# (b) the Rust-side `#[no_mangle]` FFI implementations that Ada calls back
+# into (clock, sonar, encoders, GPS, EKF, etc.).  Its `build.rs` invokes
+# `alr build` in `simulator_interface/` and emits the necessary `-L` + `-l`
+# rustc-link directives.
+#
+# Binary crates that drive the Ada library (GUI, replay, future headless
+# driver) depend on this crate.  `mars-rover-core` deliberately does not
+# depend on this crate so its pure-Rust tests can run without the Ada lib
+# in scope.
+
+[dependencies]
+mars-rover-core = { path = "../mars-rover-core" }
+once_cell = "1.20.3"
+rand = "0.9.0"
+rand_chacha = "0.9.0"
+
+[dev-dependencies]
+approx = "0.5.1"
+
+[lib]
+path = "src/lib.rs"

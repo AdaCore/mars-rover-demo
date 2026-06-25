@@ -2,3 +2,12 @@
 /bin/
 /alire/
 /config/
+
+.claude
+simulator/data
+target/**
+
+# Stray log/replay artifacts at repo root (test fixtures under simulator/tests/ are tracked)
+/*.csv
+/*.csv.wpts
+/*.csv.meta
