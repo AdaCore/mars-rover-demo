@@ -1,0 +1,15 @@
+[workspace]
+resolver = "2"
+members = [
+    "simulator",
+    "crates/mars-rover-ada-link",
+    "crates/mars-rover-core",
+    "crates/mars-rover-headless",
+    "crates/mars-rover-replay",
+]
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3

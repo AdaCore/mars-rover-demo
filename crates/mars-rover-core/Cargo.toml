@@ -1,0 +1,18 @@
+[package]
+name = "mars-rover-core"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+nalgebra = "0.33.2"
+thiserror = "2.0.11"
+rand = { version = "0.9.0", features = ["thread_rng"] }
+rand_chacha = "0.9.0"
+noise = "0.9"
+
+[dev-dependencies]
+approx = "0.5.1"
+insta = "1.42.1"
+pretty_assertions = "1.4.1"
+rstest = "0.24.0"
+textplots = "0.8.6"

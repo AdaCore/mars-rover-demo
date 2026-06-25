@@ -1,3 +1,6 @@
 **/*.rs.bk
 debug/
 target/
+
+# Typical log-file name
+rover.csv

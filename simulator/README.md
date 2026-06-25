@@ -1,72 +1,94 @@
-# Mars Rover Simulator
+# `mars-rover` — Bevy GUI
 
-A simulation of a Mars Rover based on a [4WIS4WID mobile robot model](https://ietresearch.onlinelibrary.wiley.com/doi/10.1049/joe.2014.0241).
-The rotatable distance sensor of the Mars Rover determines the distance to obstacles in the environment.
-The control software is implemented in Ada and either steers the Rover autonomously or manually.
-The Mars Rover and its environment is visualized in 3D using the game engine Bevy.
+The interactive 3D simulator. Cargo package name is `mars-rover`; the directory
+is kept as `simulator/` for historical reasons. For the workspace overview see
+the [repository root README](../README.md).
 
-## Setup
+Two modes, dispatched by CLI:
 
-- Ensure that the following dependencies are installed (only tested on Linux):
-    - GNAT Pro for Rust 25 / Rust 1.77.2
-    - GNAT Pro 25 (or newer)
-    - Alire (configured to use GNAT Pro toolchain)
-    - OS dependencies of Bevy ([Linux dependencies](https://github.com/bevyengine/bevy/blob/release-0.13.2/docs/linux_dependencies.md), see [Setup](https://bevyengine.org/learn/quick-start/getting-started/setup/) of the Quick Start Guide for other OS)
-- Ensure that submodules are checked out with `git submodule update --init --recursive`
-- Execute `cargo run --release` to start the demo
+- **Live** — spawns the Ada control thread, steps physics every frame, lets
+  you drag the rover and obstacles, optionally records a CSV trace.
+- **Replay** — no Ada thread, no physics; renders a trace recorded by either
+  the live GUI or `mars-rover-headless`. The terrain seed and waypoints come
+  from sidecar files the original run wrote next to the CSV.
 
-## Visualization
+## Running
 
-### Mouse Control
+```bash
+cargo run -p mars-rover --release                                         # live
+cargo run -p mars-rover --release -- --waypoints path.wpts                # live, with path
+cargo run -p mars-rover --release -- --text HELLO                         # live, glyph path
+cargo run -p mars-rover --release -- --log /tmp/drift.csv                 # live, recording
+cargo run -p mars-rover --release -- --replay /tmp/drift.csv              # replay a recording
+cargo run -p mars-rover --release -- --help                               # full flag list
+```
 
-- Drag and drop of rover
-- Drag and drop of obstacles
+## CLI
 
-### Keyboard Control
+| Flag | Description |
+|---|---|
+| `--seed <u64>` | Terrain generation seed. Default 42. |
+| `--gps-interval <u32>` | GPS update interval in ms; 0 disables GPS. Default 500. |
+| `--waypoints <path>` | Waypoint file (`x y` or `x,y` per line; `#` comments). |
+| `--text <string>` | Generate waypoints that trace the given text (glyph font). |
+| `--log <path>` | Write per-frame CSV to `<path>`; also writes `<path>.meta` and `<path>.wpts`. |
+| `--replay <path>` | Render a recorded trace instead of running a live sim. |
 
-- `R`: Reset rover position
-- `T`: Toggle display of rover status text
+In replay mode, CLI `--seed` / `--waypoints` / `--text` are ignored — the
+trajectory is reconstructed entirely from the CSV and its sidecars, so the
+overlay reflects what the original run was following. A warning is printed if
+the `.meta` sidecar is missing (terrain may not match the recording).
 
-The rover can be controlled using the keyboard.
-The control software will take control if none of the following keys are pressed for a few seconds:
+## In-simulator controls
 
-- `Up`/`Down`: Set velocity (overwrites controller)
-- `Left`/`Right`: Set steering angle (overwrites controller)
-- `Home`/`End`: Change distance sensor angle (overwrites controller)
+| Key / input | Action | In replay |
+|---|---|---|
+| Arrow keys | Manual wheel override (velocity + steering) | disabled |
+| Home / End | Manual sonar mast angle | disabled |
+| `R` | Reset rover position (live) / rewind trace (replay) | restart |
+| `F` | Toggle slip-free mode (ideal traction) | disabled |
+| `T` | Toggle rover status text overlay | active |
+| `P` | Toggle waypoint path overlay | active |
+| `L` | Toggle TRON ribbon trail | active |
+| `C` | Toggle Ada console pane | active (blank) |
+| Drag rover / rock | Move the entity (live only) | disabled |
+| Scroll wheel | Zoom camera | active |
 
-## Design
+If you drive with the arrow keys, the Ada control software yields for a few
+seconds before taking control back — this matches how a real remote-controlled
+session would preempt the autonomous loop.
 
-The core business logic is encapsulated in the [`domain`](src/domain.rs) module.
-It defines the `Robot` and `Environment` entities, along with the rules governing their interactions.
-The `Simulator` drives the simulation by updating the `Robot`'s state based on these rules.
-External control is managed by the `Controller` and the simulation is visualized by the `Visualizer`.
+## Recording traces
 
-### Robot ([`domain::robot`](src/domain/robot.rs))
+`--log <path>` activates the per-frame CSV logger. The 24-column schema is
+shared with `mars-rover-headless`; it is the same format `mars-rover-replay`
+consumes, so any trace recorded here can also be used as a regression input.
+The logger also writes:
 
-- Stores the robot's position and heading as well as the state of the wheels (steering angle, rotating angle, velocity) and the distance sensor (angle, measured distance).
-- Allows updating the position based on the state of the wheels and the elapsed time.
-- Allows setting the steering angle and velocity of the wheels and the angle of the distance sensor.
+- `<path>.meta` — `seed`, `gps_interval_ms`, `noise_seed`, `slip_free` (key=value).
+- `<path>.wpts` — the waypoints, one per line.
 
-### Environment ([`domain::environment`](src/domain/environment.rs))
+These sidecars let the GUI `--replay` mode reconstruct the terrain and overlay
+without the user having to remember the original flags. The sidecar writer
+lives in `mars-rover-core::sidecar` and is shared with the headless logger.
 
-- Stores the obstacles with their position and dimensions (horizontal and vertical length).
-- Allows determining the distance to the next obstacle based on a position and direction.
+## What is *not* here
 
-### Simulator ([`simulator`](src/simulator.rs))
+- The `#[no_mangle]` FFI callbacks Ada invokes — those live in
+  `mars-rover-ada-link`.
+- Domain model (robot kinematics, environment, terrain, collision, sim step) —
+  `mars-rover-core`.
+- The CSV logger details and sidecar format — `mars-rover-core` and
+  `mars-rover-headless` for the format contract.
 
-- Requests the robot to calculate its new position based on the elapsed time.
-- Updates the position of the robot as long as a position update does not lead to a collision with an obstacle.
-- Requests the environment to determine the distance of the distance sensor to the next obstacle in the sensor direction and updates the measured distance in the robot.
+## Replay mode internals (if you're modifying it)
 
-### Controller ([`controller`](src/controller.rs))
-
-- Runs the Ada-based control software in a separate thread.
-- Receives the steering angle and velocity of the robot wheels and the angle of the robot's distance sensor from the control software.
-- Provides the measured distance from the robot's distance sensor to the control software.
-
-### Visualizer ([`visualizer`](src/visualizer.rs))
-
-- Visualizes the robot and the environment with its obstacles.
-- Initializes the robot and the environment.
-- Updates the robot position if the robot is dragged and dropped.
-- Updates the obstacle position if the obstacle is dragged and dropped.
+- Source code: `src/replay_source.rs` (trait + `FileTraceSource`), `src/replay_mode.rs` (Bevy plugin).
+- Trace rows populate the existing `RobotRes` and push logged EKF estimates
+  through `ada_link::set_ekf_estimate` so the visualizer's `draw_ekf_marker`
+  system needs no changes.
+- `CORNER_WHEELS = [FL, FR, RL, RR]` in `replay_mode.rs` pins the CSV steering
+  column order independent of `WheelID`'s discriminant layout. See the comment
+  in that file; do not "simplify" it to `WheelID as usize`.
+- Drag-drop handlers in `visualizer.rs` early-return when `ReplayActive.0` is
+  true.

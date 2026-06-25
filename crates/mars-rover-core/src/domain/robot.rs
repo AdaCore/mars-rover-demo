@@ -171,27 +171,36 @@ impl Robot {
         self.distance_sensor.distance = distance;
     }
 
-    pub fn updated_position(&mut self, dt: Duration) -> Robot {
-        let q = self.velocity_vector();
+    /// Advance the robot by `dt`.  `slip` is a per-wheel traction factor in
+    /// `[0, 1]` for [FrontLeft, RearLeft, RearRight, FrontRight] — the same
+    /// wheel order as the velocity Jacobian.  Passing `[1.0; 4]` reproduces the
+    /// behaviour of the previous no-slip implementation.
+    ///
+    /// Slip is applied only to the position/heading integration; `rotating_angle`
+    /// accumulation uses raw wheel velocities because the encoder measures actual
+    /// wheel rotation regardless of ground contact.
+    pub fn updated_position(&mut self, dt: Duration, slip: [f64; 4]) -> Robot {
+        let q = self.velocity_vector_with_slip(slip);
         let linear_velocity_x = q[0];
         let linear_velocity_y = q[1];
         let angular_velocity = q[2];
-        let dt = dt.as_secs_f64();
+        let dt_secs = dt.as_secs_f64();
 
         let mut robot = self.clone();
 
         robot.set_position(Position::new(
-            self.position.x() + linear_velocity_x * dt,
-            self.position.y() + linear_velocity_y * dt,
+            self.position.x() + linear_velocity_x * dt_secs,
+            self.position.y() + linear_velocity_y * dt_secs,
         ));
         robot.set_heading(Angle::new(
-            (Into::<f64>::into(self.heading) + angular_velocity * dt) % (2.0 * PI),
+            (Into::<f64>::into(self.heading) + angular_velocity * dt_secs) % (2.0 * PI),
         ));
 
         for wheel_id in WheelID::iter() {
             if let Some(wheel) = robot.wheels.get_mut(wheel_id) {
+                // Raw velocity — encoders are unaffected by slip.
                 wheel.rotating_angle = wheel.rotating_angle
-                    + Angle::new(self.v(*wheel_id) * self.config.wheel_radius.powi(-1) * dt);
+                    + Angle::new(self.v(*wheel_id) * self.config.wheel_radius.powi(-1) * dt_secs);
             }
         }
 
@@ -200,7 +209,11 @@ impl Robot {
 
     /// Based on Lee, M. H., & Li, T. H. S. (2015). Kinematics, dynamics and control design of
     /// 4WIS4WID mobile robots. The Journal of Engineering, 2015(1), 6-16.
-    fn velocity_vector(&self) -> Vector3<f64> {
+    ///
+    /// `slip` scales each wheel's contribution to the velocity vector.  The
+    /// order matches the Jacobian columns: [FrontLeft, RearLeft, RearRight,
+    /// FrontRight].
+    fn velocity_vector_with_slip(&self, slip: [f64; 4]) -> Vector3<f64> {
         let j = Matrix3x4::from_rows(&[
             RowVector4::from_row_slice(&[
                 self.c(WheelID::FrontLeft),
@@ -222,10 +235,10 @@ impl Robot {
             ]),
         ]);
         let v = Vector4::from_row_slice(&[
-            self.v(WheelID::FrontLeft),
-            self.v(WheelID::RearLeft),
-            self.v(WheelID::RearRight),
-            self.v(WheelID::FrontRight),
+            self.v(WheelID::FrontLeft) * slip[0],
+            self.v(WheelID::RearLeft) * slip[1],
+            self.v(WheelID::RearRight) * slip[2],
+            self.v(WheelID::FrontRight) * slip[3],
         ]);
         j * v
     }
@@ -409,6 +422,7 @@ mod tests {
     use rstest::rstest;
 
     use super::*;
+    use crate::set_snapshot_suffix;
     use crate::tests::{plot_line_chart, plot_point_chart};
 
     const EPSILON: f64 = 2.0 * f64::EPSILON;
@@ -428,7 +442,7 @@ mod tests {
     ) {
         let mut robot = Robot::new(Angle::new(heading), cfg());
         set_velocity(&mut robot, Velocity::new(velocity));
-        robot = robot.updated_position(Duration::from_secs(time));
+        robot = robot.updated_position(Duration::from_secs(time), [1.0; 4]);
         assert_abs_diff_eq!(robot.position().x(), position.0, epsilon = EPSILON);
         assert_abs_diff_eq!(robot.position().y(), position.1, epsilon = EPSILON);
         assert_abs_diff_eq!(
@@ -450,7 +464,7 @@ mod tests {
         let points = (0..=100)
             .step_by(1)
             .map(|_| {
-                robot = robot.updated_position(Duration::from_millis(100));
+                robot = robot.updated_position(Duration::from_millis(100), [1.0; 4]);
                 (robot.position.x() as f32, robot.position.y() as f32)
             })
             .collect::<Vec<_>>();
@@ -471,7 +485,7 @@ mod tests {
         let points = (0..=1000)
             .step_by(1)
             .map(|_| {
-                robot = robot.updated_position(Duration::from_millis(100));
+                robot = robot.updated_position(Duration::from_millis(100), [1.0; 4]);
                 (robot.position.x() as f32, robot.position.y() as f32)
             })
             .collect::<Vec<_>>();
@@ -494,7 +508,7 @@ mod tests {
         let mut robot = Robot::new(Angle::new(0.5 * PI), cfg());
         set_parallel_steering_angle(&mut robot, Angle::new(steering_angle));
         set_velocity(&mut robot, Velocity::new(1.0));
-        robot = robot.updated_position(Duration::from_secs(1));
+        robot = robot.updated_position(Duration::from_secs(1), [1.0; 4]);
         assert_abs_diff_eq!(robot.position.x(), position.0, epsilon = EPSILON);
         assert_abs_diff_eq!(robot.position.y(), position.1, epsilon = EPSILON);
         assert_abs_diff_eq!(Into::<f64>::into(robot.heading), heading, epsilon = EPSILON);

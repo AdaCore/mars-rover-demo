@@ -1,0 +1,8 @@
+[package]
+name = "mars-rover-headless"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+mars-rover-ada-link = { path = "../mars-rover-ada-link" }
+mars-rover-core = { path = "../mars-rover-core" }

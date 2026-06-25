@@ -217,6 +217,90 @@ is
                         Pwr  : Motor_Power)
                         renames Rover_HAL.Motors.Set_Power;
 
+   --------------
+   -- Encoders --
+   --------------
+
+   function Read_Encoder_Ticks (Wheel : Corner_Wheel_Id) return Encoder_Ticks is
+      pragma Unreferenced (Wheel);
+   begin
+      return 0;
+      --  No encoder hardware on the Pico yet.  Returns zero so the EKF
+      --  runs without crashing; odometry will be flat until hardware is wired.
+   end Read_Encoder_Ticks;
+
+   ------------------------
+   -- EKF_Reset_Pending  --
+   ------------------------
+
+   function EKF_Reset_Pending return Boolean is
+   begin
+      return False;
+      --  Rover repositioning cannot happen on physical hardware.
+   end EKF_Reset_Pending;
+
+   function EKF_Reset_X     return World_X is (0.0);
+   function EKF_Reset_Y     return World_Y is (0.0);
+   function EKF_Reset_Theta return Heading is (0.0);
+
+   ---------
+   -- IMU --
+   ---------
+
+   function Read_IMU_Gyro_Z return Gyro_Rate_Raw is (0);
+   --  No IMU hardware on the Pico yet.  Returns zero so the EKF heading
+   --  prediction falls back to zero (no rotation assumed) until hardware is wired.
+
+   ---------------
+   -- Waypoints --
+   ---------------
+
+   function Waypoint_Count return Natural is (0);
+
+   function Get_Waypoint (Idx : Natural) return Waypoint_Type is
+      pragma Unreferenced (Idx);
+   begin
+      return (X => 0.0, Y => 0.0);
+   end Get_Waypoint;
+
+   ---------
+   -- GPS --
+   ---------
+
+   function GPS_Fix return GPS_Fix_Type is
+   begin
+      return (X => 0.0, Y => 0.0, Timestamp => 0);
+      --  No GPS hardware on the Pico yet.  Returns a zero fix so the EKF
+      --  never initialises and Poll is a safe no-op until hardware is added.
+   end GPS_Fix;
+
+   ----------------------------
+   -- Set_Estimated_Position --
+   ----------------------------
+
+   procedure Set_Estimated_Position
+     (X : World_X; Y : World_Y; Theta : Heading)
+   is
+      pragma Unreferenced (X, Y, Theta);
+   begin
+      null;
+      --  No telemetry channel on hardware yet; no-op until one is added.
+   end Set_Estimated_Position;
+
+   -----------------------
+   -- Report_GNC_State  --
+   -----------------------
+
+   procedure Report_GNC_State
+     (GPS_X, GPS_Y,
+      Enc_FL, Enc_FR, Enc_RL, Enc_RR : Interfaces.Integer_32)
+   is
+      pragma Unreferenced (GPS_X, GPS_Y, Enc_FL, Enc_FR, Enc_RL, Enc_RR);
+   begin
+      null;
+      --  No telemetry channel on hardware yet.
+   end Report_GNC_State;
+
    ----------------------
    -- Set_Display_Info --
    ----------------------

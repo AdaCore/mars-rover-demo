@@ -1,0 +1,55 @@
+Loaded 50 rows from tests/fixtures/obstacle_close.csv  (tolerance ±5)
+No waypoint sidecar found (tests/fixtures/obstacle_close.csv.wpts); Ada will use autonomous mode
+Exact-DT replay: using logged ada_step_us timestamps.
+PASS step    1  rows    0–   1  t=     0–    40ms  pwr=   0/   0  mast= -4°  ekf ada—  log—
+FAIL step    2  row    2  t=    80ms :  mast_angle=-6 exp=0 (Δ=6.0>tol=5)  ekf ada—  log—
+FAIL step    3  row    3  t=   120ms :  mast_angle=-8 exp=0 (Δ=8.0>tol=5)  ekf ada—  log—
+FAIL step    4  row    4  t=   160ms :  mast_angle=-10 exp=0 (Δ=10.0>tol=5)  ekf ada—  log—
+FAIL step    5  row    5  t=   200ms :  mast_angle=-12 exp=0 (Δ=12.0>tol=5)  ekf ada—  log—
+FAIL step    6  row    6  t=   240ms :  mast_angle=-14 exp=0 (Δ=14.0>tol=5)  ekf ada—  log—
+FAIL step    7  row    7  t=   280ms :  mast_angle=-16 exp=0 (Δ=16.0>tol=5)  ekf ada—  log—
+FAIL step    8  row    8  t=   320ms :  mast_angle=-18 exp=0 (Δ=18.0>tol=5)  ekf ada—  log—
+FAIL step    9  row    9  t=   360ms :  mast_angle=-20 exp=0 (Δ=20.0>tol=5)  ekf ada—  log—
+FAIL step   10  row   10  t=   400ms :  mast_angle=-22 exp=0 (Δ=22.0>tol=5)  ekf ada—  log—
+FAIL step   11  row   11  t=   440ms :  mast_angle=-24 exp=0 (Δ=24.0>tol=5)  ekf ada—  log—
+FAIL step   12  row   12  t=   480ms :  mast_angle=-26 exp=0 (Δ=26.0>tol=5)  ekf ada—  log—
+FAIL step   13  row   13  t=   520ms :  mast_angle=-28 exp=0 (Δ=28.0>tol=5)  ekf ada—  log—
+FAIL step   14  row   14  t=   560ms :  mast_angle=-30 exp=0 (Δ=30.0>tol=5)  ekf ada—  log—
+FAIL step   15  row   15  t=   600ms :  mast_angle=-32 exp=0 (Δ=32.0>tol=5)  ekf ada—  log—
+FAIL step   16  row   16  t=   640ms :  mast_angle=-34 exp=0 (Δ=34.0>tol=5)  ekf ada—  log—
+FAIL step   17  row   17  t=   680ms :  mast_angle=-36 exp=0 (Δ=36.0>tol=5)  ekf ada—  log—
+FAIL step   18  row   18  t=   720ms :  mast_angle=-38 exp=0 (Δ=38.0>tol=5)  ekf ada—  log—
+FAIL step   19  row   19  t=   760ms :  mast_angle=-40 exp=0 (Δ=40.0>tol=5)  ekf ada—  log—
+FAIL step   20  row   20  t=   800ms :  mast_angle=-42 exp=0 (Δ=42.0>tol=5)  ekf ada—  log—
+FAIL step   21  row   21  t=   840ms :  mast_angle=-44 exp=0 (Δ=44.0>tol=5)  ekf ada—  log—
+FAIL step   22  row   22  t=   880ms :  mast_angle=-46 exp=0 (Δ=46.0>tol=5)  ekf ada—  log—
+FAIL step   23  row   23  t=   920ms :  mast_angle=-48 exp=0 (Δ=48.0>tol=5)  ekf ada—  log—
+FAIL step   24  row   24  t=   960ms :  mast_angle=-50 exp=0 (Δ=50.0>tol=5)  ekf ada—  log—
+FAIL step   25  row   25  t=  1000ms :  mast_angle=-52 exp=0 (Δ=52.0>tol=5)  ekf ada—  log—
+FAIL step   26  row   26  t=  1040ms :  mast_angle=-54 exp=0 (Δ=54.0>tol=5)  ekf ada—  log—
+FAIL step   27  row   27  t=  1080ms :  mast_angle=-56 exp=0 (Δ=56.0>tol=5)  ekf ada—  log—
+FAIL step   28  row   28  t=  1120ms :  mast_angle=-58 exp=0 (Δ=58.0>tol=5)  ekf ada—  log—
+FAIL step   29  row   29  t=  1160ms :  mast_angle=-60 exp=0 (Δ=60.0>tol=5)  ekf ada—  log—
+FAIL step   30  row   30  t=  1200ms :  mast_angle=-58 exp=0 (Δ=58.0>tol=5)  ekf ada—  log—
+FAIL step   31  row   31  t=  1240ms :  mast_angle=-56 exp=0 (Δ=56.0>tol=5)  ekf ada—  log—
+FAIL step   32  row   32  t=  1280ms :  mast_angle=-54 exp=0 (Δ=54.0>tol=5)  ekf ada—  log—
+FAIL step   33  row   33  t=  1320ms :  mast_angle=-52 exp=0 (Δ=52.0>tol=5)  ekf ada—  log—
+FAIL step   34  row   34  t=  1360ms :  mast_angle=-50 exp=0 (Δ=50.0>tol=5)  ekf ada—  log—
+FAIL step   35  row   35  t=  1400ms :  mast_angle=-48 exp=0 (Δ=48.0>tol=5)  ekf ada—  log—
+FAIL step   36  row   36  t=  1440ms :  mast_angle=-46 exp=0 (Δ=46.0>tol=5)  ekf ada—  log—
+FAIL step   37  row   37  t=  1480ms :  mast_angle=-44 exp=0 (Δ=44.0>tol=5)  ekf ada—  log—
+FAIL step   38  row   38  t=  1520ms :  mast_angle=-42 exp=0 (Δ=42.0>tol=5)  ekf ada—  log—
+FAIL step   39  row   39  t=  1560ms :  mast_angle=-40 exp=0 (Δ=40.0>tol=5)  ekf ada—  log—
+FAIL step   40  row   40  t=  1600ms :  mast_angle=-38 exp=0 (Δ=38.0>tol=5)  ekf ada—  log—
+FAIL step   41  row   41  t=  1640ms :  mast_angle=-36 exp=0 (Δ=36.0>tol=5)  ekf ada—  log—
+FAIL step   42  row   42  t=  1680ms :  mast_angle=-34 exp=0 (Δ=34.0>tol=5)  ekf ada—  log—
+FAIL step   43  row   43  t=  1720ms :  mast_angle=-32 exp=0 (Δ=32.0>tol=5)  ekf ada—  log—
+FAIL step   44  row   44  t=  1760ms :  mast_angle=-30 exp=0 (Δ=30.0>tol=5)  ekf ada—  log—
+FAIL step   45  row   45  t=  1800ms :  mast_angle=-28 exp=0 (Δ=28.0>tol=5)  ekf ada—  log—
+FAIL step   46  row   46  t=  1840ms :  mast_angle=-26 exp=0 (Δ=26.0>tol=5)  ekf ada—  log—
+FAIL step   47  row   47  t=  1880ms :  mast_angle=-24 exp=0 (Δ=24.0>tol=5)  ekf ada—  log—
+FAIL step   48  row   48  t=  1920ms :  mast_angle=-22 exp=0 (Δ=22.0>tol=5)  ekf ada—  log—
+FAIL step   49  row   49  t=  1960ms :  mast_angle=-20 exp=0 (Δ=20.0>tol=5)  ekf ada—  log—
+FAIL step   50  row   49  t=  1960ms :  mast_angle=-18 exp=0 (Δ=18.0>tol=5)  ekf ada—  log—
+
+Replay complete: 1 PASS  49 FAIL  (50 Ada steps, 50 CSV rows)

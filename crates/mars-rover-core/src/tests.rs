@@ -2,6 +2,7 @@
 
 use textplots::{Chart, Plot, Shape};
 
+#[macro_export]
 macro_rules! set_snapshot_suffix {
     ($($expr:expr),*) => {
         let mut settings = insta::Settings::clone_current();

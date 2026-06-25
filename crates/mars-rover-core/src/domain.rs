@@ -8,8 +8,10 @@ mod basis;
 mod collision;
 mod environment;
 mod robot;
+mod terrain;
 
 pub use basis::{Angle, Position, Velocity};
 pub use collision::{HasCollision, Shape};
 pub use environment::{Environment, Movability, Obstacle};
 pub use robot::{Robot, RobotConfig, WheelID};
+pub use terrain::Terrain;

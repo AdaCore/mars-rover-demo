@@ -1,10 +1,23 @@
 with Rover_HAL; use Rover_HAL;
 
+with Ada.Numerics;
+with Rover.Estimation;
+with Rover.GNC;
 with Rover.Mast_Control;
 
 package body Rover.Autonomous
 with SPARK_Mode
 is
+
+   --  Steering angles (rad) for the Set_Turn(Around) configuration.
+   --  FL/RR are toed inward at -30°; FR/RL at +30°.  These match the
+   --  Angles(...) values set by Set_Turn(Around) in rover_hal.adb.
+   Pi_Over_6 : constant Float := Float (Ada.Numerics.Pi) / 6.0;
+   Around_Steering : constant Rover.Estimation.Corner_Steering :=
+     [Front_Left  => -Pi_Over_6,
+      Front_Right =>  Pi_Over_6,
+      Rear_Left   =>  Pi_Over_6,
+      Rear_Right  => -Pi_Over_6];
 
    type Auto_State is record
       User_Exit : Boolean := False;
@@ -38,7 +51,9 @@ is
      Pre  => Initialized and then
              Rover_HAL.Get_Sonar_Distance >= Distance_Threshold,
      Post => Initialized and then
-             Rover.Cannot_Crash
+             Rover.Cannot_Crash,
+     Exceptional_Cases =>
+       (Rover.Estimation.Estimator_Assumption_Violation => True)
    is
       Distance : Unsigned_32 := Distance_Threshold;
       --  The initial value of Distance (which becomes Last_Distance) is at
@@ -50,6 +65,8 @@ is
 
       Sonar_Sampling_Delay : constant := 40;
    begin
+      Set_Display_Info ("Going forward");
+
       --  Go forward...
       Set_Turn (Straight);
       Set_Power (Left, 100);
@@ -81,6 +98,11 @@ is
          pragma Loop_Invariant (Rover.Cannot_Crash);
 
          Delay_Milliseconds (Sonar_Sampling_Delay);
+
+         --  GNC: one EKF cycle.  Go_Forward uses Set_Turn(Straight),
+         --  so all steering angles are 0.0 rad.
+         Rover.GNC.Poll
+           (Steering => [others => 0.0]);
       end loop;
    end Go_Forward;
 
@@ -92,16 +114,26 @@ is
    with
      Pre  => Initialized,
      Post => Initialized and then
-             Rover.Cannot_Crash
+             Rover.Cannot_Crash,
+     Exceptional_Cases =>
+       (Rover.Estimation.Estimator_Assumption_Violation => True)
    is
    begin
+      Set_Display_Info ("Turning around");
+
       --  Turn around, full speed
       --  TODO: Ramdom direction, keep turning if an obstacle is detected
 
       Set_Turn (Around);
       Set_Power (Left, -100);
       Set_Power (Right, 100);
-      Delay_Milliseconds (2000);
+      --  Drive the EKF during the turn (50 × 40 ms = 2 000 ms) so that
+      --  theta tracks the actual heading change instead of being frozen
+      --  for the full 2 s and then applied as one large batch step.
+      for I in 1 .. 50 loop
+         Delay_Milliseconds (40);
+         Rover.GNC.Poll (Steering => Around_Steering);
+      end loop;
    end Turn_Around;
 
    ------------------------
@@ -113,7 +145,9 @@ is
       Pre  => Initialized,
       Post => Initialized and then
               (This.User_Exit or else
-               Rover_HAL.Get_Sonar_Distance >= Distance_Threshold)
+               Rover_HAL.Get_Sonar_Distance >= Distance_Threshold),
+      Exceptional_Cases =>
+        (Rover.Estimation.Estimator_Assumption_Violation => True)
    is
       Left_Dist : Unsigned_32 := 0;
       Right_Dist : Unsigned_32 := 0;
@@ -145,6 +179,8 @@ is
 
       Distance : Unsigned_32;
    begin
+      Set_Display_Info ("Finding direction");
+
       Now := Clock;
       Timeout := Now + Milliseconds (10000);
 
@@ -185,17 +221,25 @@ is
                --  direction
                Turn_Around;
             elsif Left_Dist > Right_Dist then
-               --  Turn left a little
+               --  Turn left a little (20 × 40 ms = 800 ms)
+               Set_Display_Info ("Turning left");
                Set_Turn (Around);
                Set_Power (Left, -100);
                Set_Power (Right, 100);
-               Delay_Milliseconds (800);
+               for I in 1 .. 20 loop
+                  Delay_Milliseconds (40);
+                  Rover.GNC.Poll (Steering => Around_Steering);
+               end loop;
             else
-               --  Turn right a little
+               --  Turn right a little (20 × 40 ms = 800 ms)
+               Set_Display_Info ("Turning right");
                Set_Turn (Around);
                Set_Power (Left, 100);
                Set_Power (Right, -100);
-               Delay_Milliseconds (800);
+               for I in 1 .. 20 loop
+                  Delay_Milliseconds (40);
+                  Rover.GNC.Poll (Steering => Around_Steering);
+               end loop;
             end if;
 
             Distance := Distance_Straight_Ahead;

@@ -1,0 +1,11 @@
+[package]
+name = "mars-rover-replay"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+mars-rover-ada-link = { path = "../mars-rover-ada-link" }
+
+[[bin]]
+name = "replay"
+path = "src/main.rs"
