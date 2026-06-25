@@ -1,5 +1,10 @@
 # Mars Rover Demo
 
+This branch holds the code described in
+[our blog post](https://github.com/AdaCore/mars-rover-demo/tree/mars-rover-gnc)
+that presents the work. Note that the Rover hardware lacks the sensors needed
+to execute this code on-target in a meaningful way.
+
 A small 4WIS4WID rover driven by formally-verified Ada/SPARK control software.
 The same Ada sources run on a Raspberry Pi Pico (RP2040) with real motors and
 sensors, and inside a 3D Rust/Bevy simulator on the desktop. A headless driver
